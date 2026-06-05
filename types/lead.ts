@@ -12,3 +12,8 @@ export interface Lead {
   status: LeadStatus;
   createdAt: string;
 }
+export interface LeadFormData {
+  name: string;
+  email: string;
+  company: string;
+}
