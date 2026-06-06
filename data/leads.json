@@ -1,5 +1,69 @@
 [
   {
+    "id": "1780742362134",
+    "name": "New",
+    "email": "brand-new@example.com",
+    "company": "Co",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780742362113",
+    "name": "X",
+    "email": "x@x.com",
+    "company": "X",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780742362110",
+    "name": "Status Test",
+    "email": "status@example.com",
+    "company": "StatusCo",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780742362107",
+    "name": "Case Test",
+    "email": "upper@example.com",
+    "company": "CaseCo",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780742362105",
+    "name": "Spaced Name",
+    "email": "spaced@example.com",
+    "company": "SpacedCo",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780742362102",
+    "name": "Persisted User",
+    "email": "persist@example.com",
+    "company": "PersistCo",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780742362100",
+    "name": "First Lead",
+    "email": "first@example.com",
+    "company": "FirstCo",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780742362097",
+    "name": "Test User",
+    "email": "test@example.com",
+    "company": "TestCo",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
     "id": "1780722569331",
     "name": "Pavan Metkari",
     "email": "p.m@gmail.com",
@@ -20,7 +84,7 @@
     "name": "John Doe",
     "email": "john@example.com",
     "company": "Google",
-    "status": "New",
+    "status": "Lost",
     "createdAt": "2025-06-01"
   },
   {
@@ -28,7 +92,7 @@
     "name": "Alice Smith",
     "email": "alice@example.com",
     "company": "Amazon",
-    "status": "Contacted",
+    "status": "Qualified",
     "createdAt": "2025-06-02"
   },
   {
@@ -36,7 +100,7 @@
     "name": "Bob Johnson",
     "email": "bob@example.com",
     "company": "Microsoft",
-    "status": "Qualified",
+    "status": "Lost",
     "createdAt": "2025-06-03"
   },
   {

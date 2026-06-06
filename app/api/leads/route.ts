@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { getAllLeads, createLead, emailExists } from "../../../lib/store";
 
 export async function GET() {
-  return NextResponse.json({ leads: getAllLeads() });
+  const leads = await getAllLeads();
+  return NextResponse.json({ leads });
 }
 
 export async function POST(request: Request) {
@@ -10,7 +11,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { name, email, company } = body;
 
-    // Validation
     if (!name?.trim()) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
@@ -20,14 +20,14 @@ export async function POST(request: Request) {
     if (!company?.trim()) {
       return NextResponse.json({ error: "Company is required" }, { status: 400 });
     }
-    if (emailExists(email)) {
+    if (await emailExists(email)) {
       return NextResponse.json(
         { error: "A lead with this email already exists" },
         { status: 409 }
       );
     }
 
-    const lead = createLead({ name, email, company });
+    const lead = await createLead({ name, email, company });
     return NextResponse.json({ success: true, lead }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

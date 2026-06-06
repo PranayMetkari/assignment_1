@@ -1,20 +1,8 @@
 import { NextResponse } from "next/server";
-import { getLeadById, updateLeadStatus } from "../../../../lib/store";
+import { updateLeadStatus } from "../../../../lib/store";
 import { LeadStatus } from "../../../../types/lead";
 
 const VALID_STATUSES: LeadStatus[] = ["New", "Contacted", "Qualified", "Lost"];
-
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const lead = getLeadById(id);
-  if (!lead) {
-    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
-  }
-  return NextResponse.json({ lead });
-}
 
 export async function PATCH(
   request: Request,
@@ -32,7 +20,7 @@ export async function PATCH(
       );
     }
 
-    const lead = updateLeadStatus(id, status as LeadStatus);
+    const lead = await updateLeadStatus(id, status as LeadStatus);
     if (!lead) {
       return NextResponse.json({ error: "Lead not found" }, { status: 404 });
     }
