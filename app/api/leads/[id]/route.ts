@@ -1,33 +1,44 @@
 import { NextResponse } from "next/server";
-import { leads } from "../../../../data/leads";
+import { getLeadById, updateLeadStatus } from "../../../../lib/store";
+import { LeadStatus } from "../../../../types/lead";
+
+const VALID_STATUSES: LeadStatus[] = ["New", "Contacted", "Qualified", "Lost"];
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const lead = getLeadById(id);
+  if (!lead) {
+    return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+  }
+  return NextResponse.json({ lead });
+}
 
 export async function PATCH(
-    request: Request,
-    {
-        params,
-    }: {
-        params: Promise<{ id: string }>;
-    }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  try {
     const { id } = await params;
-
     const body = await request.json();
+    const { status } = body;
 
-    const lead = leads.find(
-        (lead) => lead.id === id
-    );
-
-    if (!lead) {
-        return NextResponse.json(
-            { error: "Lead not found" },
-            { status: 404 }
-        );
+    if (!status || !VALID_STATUSES.includes(status)) {
+      return NextResponse.json(
+        { error: `Status must be one of: ${VALID_STATUSES.join(", ")}` },
+        { status: 400 }
+      );
     }
 
-    lead.status = body.status;
+    const lead = updateLeadStatus(id, status as LeadStatus);
+    if (!lead) {
+      return NextResponse.json({ error: "Lead not found" }, { status: 404 });
+    }
 
-    return NextResponse.json({
-        success: true,
-        lead,
-    });
+    return NextResponse.json({ success: true, lead });
+  } catch {
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
 }

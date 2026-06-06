@@ -1,8 +1,4 @@
-export type LeadStatus =
-  | "New"
-  | "Contacted"
-  | "Qualified"
-  | "Lost";
+export type LeadStatus = "New" | "Contacted" | "Qualified" | "Lost";
 
 export interface Lead {
   id: string;
@@ -12,8 +8,12 @@ export interface Lead {
   status: LeadStatus;
   createdAt: string;
 }
+
 export interface LeadFormData {
   name: string;
   email: string;
   company: string;
 }
+
+export type SortField = "createdAt" | "name" | "company";
+export type SortDirection = "asc" | "desc";
