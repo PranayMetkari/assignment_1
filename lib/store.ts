@@ -1,8 +1,18 @@
-import fs from "fs";
-import path from "path";
+/**
+ * store.ts — Upstash Redis
+ *
+ * Works locally and on Vercel deployment.
+ *
+ * Setup:
+ *  1. Vercel Dashboard → Storage → Upstash → Redis → Create → Connect to Project
+ *  2. npm install @upstash/redis
+ *  3. vercel env pull .env.local
+ */
+
+import { Redis } from "@upstash/redis";
 import { Lead, LeadStatus } from "../types/lead";
 
-const DB_PATH = path.join(process.cwd(), "data", "leads.json");
+const LEADS_KEY = "leads";
 
 const SEED_LEADS: Lead[] = [
   { id: "1",  name: "John Doe",          email: "john@example.com",       company: "Google",     status: "New",       createdAt: "2025-06-01" },
@@ -19,70 +29,86 @@ const SEED_LEADS: Lead[] = [
   { id: "12", name: "Isabella Martinez", email: "isabella@example.com",   company: "Salesforce", status: "Lost",      createdAt: "2025-06-12" },
 ];
 
-function readDB(): Lead[] {
+// ── Redis client ──────────────────────────────────────────────────────────────
+// fromEnv() automatically reads UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN
+const redis = Redis.fromEnv();
+
+// ── Private helpers ───────────────────────────────────────────────────────────
+
+async function readDB(): Promise<Lead[]> {
   try {
-    if (!fs.existsSync(DB_PATH)) {
-      writeDB(SEED_LEADS);
+    const leads = await redis.get<Lead[]>(LEADS_KEY);
+
+    if (!leads) {
+      // First run — seed Redis with initial data
+      await redis.set(LEADS_KEY, SEED_LEADS);
       return [...SEED_LEADS];
     }
-    const raw = fs.readFileSync(DB_PATH, "utf-8");
-    return JSON.parse(raw) as Lead[];
-  } catch {
-    writeDB(SEED_LEADS);
-    return [...SEED_LEADS];
+
+    return leads;
+  } catch (err) {
+    console.error("Redis read error:", err);
+    throw new Error("Failed to read leads from store");
   }
 }
 
-function writeDB(leads: Lead[]): void {
-  const dir = path.dirname(DB_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+async function writeDB(leads: Lead[]): Promise<void> {
+  try {
+    await redis.set(LEADS_KEY, leads);
+  } catch (err) {
+    console.error("Redis write error:", err);
+    throw new Error("Failed to save leads to store");
   }
-  fs.writeFileSync(DB_PATH, JSON.stringify(leads, null, 2), "utf-8");
 }
 
+// ── Public store API ──────────────────────────────────────────────────────────
 
-export function getAllLeads(): Lead[] {
+export async function getAllLeads(): Promise<Lead[]> {
   return readDB();
 }
 
-export function getLeadById(id: string): Lead | undefined {
-  return readDB().find((l) => l.id === id);
+export async function getLeadById(id: string): Promise<Lead | undefined> {
+  const leads = await readDB();
+  return leads.find((l) => l.id === id);
 }
 
-export function createLead(data: {
+export async function createLead(data: {
   name: string;
   email: string;
   company: string;
-}): Lead {
-  const leads = readDB();
+}): Promise<Lead> {
+  const leads = await readDB();
 
   const newLead: Lead = {
-    id: String(Date.now()),
-    name: data.name.trim(),
-    email: data.email.trim().toLowerCase(),
-    company: data.company.trim(),
-    status: "New" as LeadStatus,
+    id:        String(Date.now()),
+    name:      data.name.trim(),
+    email:     data.email.trim().toLowerCase(),
+    company:   data.company.trim(),
+    status:    "New" as LeadStatus,
     createdAt: new Date().toISOString().split("T")[0],
   };
 
   leads.unshift(newLead);
-  writeDB(leads);
+  await writeDB(leads);
   return newLead;
 }
 
-export function updateLeadStatus(id: string, status: LeadStatus): Lead | null {
-  const leads = readDB();
-  const lead = leads.find((l) => l.id === id);
+export async function updateLeadStatus(
+  id: string,
+  status: LeadStatus
+): Promise<Lead | null> {
+  const leads = await readDB();
+  const lead  = leads.find((l) => l.id === id);
   if (!lead) return null;
 
   lead.status = status;
-  writeDB(leads);
+  await writeDB(leads);
   return lead;
 }
 
-export function emailExists(email: string): boolean {
-  return readDB().some(
+export async function emailExists(email: string): Promise<boolean> {
+  const leads = await readDB();
+  return leads.some(
     (l) => l.email.toLowerCase() === email.trim().toLowerCase()
   );
 }
