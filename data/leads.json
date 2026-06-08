@@ -1,10 +1,42 @@
 [
   {
+    "id": "1780903212581",
+    "name": "Ritvik noob",
+    "email": "ritvik@gmail.com",
+    "company": "RTech",
+    "status": "Contacted",
+    "createdAt": "2026-06-08"
+  },
+  {
+    "id": "1780757527446",
+    "name": "Sanket Patade",
+    "email": "sankey@gmail.com",
+    "company": "SankeySolutions",
+    "status": "New",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780756163938",
+    "name": "Shubh",
+    "email": "shubh@gmail.com",
+    "company": "shubhTech",
+    "status": "Contacted",
+    "createdAt": "2026-06-06"
+  },
+  {
+    "id": "1780752482627",
+    "name": "Mayur Chavan",
+    "email": "mayur@gmail.com",
+    "company": "mctech",
+    "status": "Contacted",
+    "createdAt": "2026-06-06"
+  },
+  {
     "id": "1780742362134",
     "name": "New",
     "email": "brand-new@example.com",
     "company": "Co",
-    "status": "New",
+    "status": "Qualified",
     "createdAt": "2026-06-06"
   },
   {
@@ -68,7 +100,7 @@
     "name": "Pavan Metkari",
     "email": "p.m@gmail.com",
     "company": "APB",
-    "status": "Lost",
+    "status": "New",
     "createdAt": "2026-06-06"
   },
   {

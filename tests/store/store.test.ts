@@ -21,7 +21,7 @@ beforeEach(() => {
   if (fs.existsSync(dataDir)) {
     fs.rmSync(dataDir, { recursive: true });
   }
-  vi.resetModules(); // clear module cache so store re-reads from fresh seed
+  vi.resetModules(); 
 });
 
 // Import store fresh after each resetModules

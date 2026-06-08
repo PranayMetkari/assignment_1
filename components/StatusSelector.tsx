@@ -6,36 +6,45 @@ import { LeadStatus } from "../types/lead";
 interface StatusSelectorProps {
   leadId: string;
   initialStatus: LeadStatus;
+  onStatusChange?: (status: LeadStatus) => void; // ← new optional prop
 }
 
-const STATUSES: { value: LeadStatus; label: string; colors: string; activeColors: string }[] = [
+const STATUSES: {
+  value: LeadStatus;
+  colors: string;
+  activeColors: string;
+}[] = [
   {
     value: "New",
-    label: "New",
-    colors: "border-zinc-700 text-zinc-400 hover:border-yellow-500/50 hover:text-yellow-400",
+    colors:
+      "border-zinc-700 text-zinc-400 hover:border-yellow-500/50 hover:text-yellow-400",
     activeColors: "border-yellow-500 bg-yellow-500/10 text-yellow-300",
   },
   {
     value: "Contacted",
-    label: "Contacted",
-    colors: "border-zinc-700 text-zinc-400 hover:border-blue-500/50 hover:text-blue-400",
+    colors:
+      "border-zinc-700 text-zinc-400 hover:border-blue-500/50 hover:text-blue-400",
     activeColors: "border-blue-500 bg-blue-500/10 text-blue-300",
   },
   {
     value: "Qualified",
-    label: "Qualified",
-    colors: "border-zinc-700 text-zinc-400 hover:border-green-500/50 hover:text-green-400",
+    colors:
+      "border-zinc-700 text-zinc-400 hover:border-green-500/50 hover:text-green-400",
     activeColors: "border-green-500 bg-green-500/10 text-green-300",
   },
   {
     value: "Lost",
-    label: "Lost",
-    colors: "border-zinc-700 text-zinc-400 hover:border-red-500/50 hover:text-red-400",
+    colors:
+      "border-zinc-700 text-zinc-400 hover:border-red-500/50 hover:text-red-400",
     activeColors: "border-red-500 bg-red-500/10 text-red-300",
   },
 ];
 
-export default function StatusSelector({ leadId, initialStatus }: StatusSelectorProps) {
+export default function StatusSelector({
+  leadId,
+  initialStatus,
+  onStatusChange,
+}: StatusSelectorProps) {
   const [status, setStatus] = useState<LeadStatus>(initialStatus);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -46,7 +55,12 @@ export default function StatusSelector({ leadId, initialStatus }: StatusSelector
 
     const previous = status;
 
+    // 1. Update local state immediately (optimistic)
     setStatus(newStatus);
+
+    // 2. Notify parent so Lead Details badge updates too
+    onStatusChange?.(newStatus);
+
     setSaving(true);
     setSaved(false);
     setError("");
@@ -61,8 +75,9 @@ export default function StatusSelector({ leadId, initialStatus }: StatusSelector
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        // Rollback on failure
+        // Rollback both local state and parent state
         setStatus(previous);
+        onStatusChange?.(previous);
         setError(data.error ?? "Update failed. Please try again.");
       } else {
         setSaved(true);
@@ -71,6 +86,7 @@ export default function StatusSelector({ leadId, initialStatus }: StatusSelector
     } catch {
       // Rollback on network error
       setStatus(previous);
+      onStatusChange?.(previous);
       setError("Network error. Please check your connection.");
     } finally {
       setSaving(false);
@@ -79,7 +95,6 @@ export default function StatusSelector({ leadId, initialStatus }: StatusSelector
 
   return (
     <div className="space-y-3">
-      
       <div className="flex flex-wrap gap-2">
         {STATUSES.map((s) => {
           const isActive = status === s.value;
@@ -96,13 +111,12 @@ export default function StatusSelector({ leadId, initialStatus }: StatusSelector
                 ${isActive ? s.activeColors : s.colors}
               `}
             >
-              {s.label}
+              {s.value}
             </button>
           );
         })}
       </div>
 
-      
       <div className="h-5 flex items-center gap-2">
         {saving && (
           <span className="flex items-center gap-1.5 text-xs text-zinc-500">
